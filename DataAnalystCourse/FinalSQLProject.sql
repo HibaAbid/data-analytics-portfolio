@@ -97,52 +97,8 @@ from (
 		) a
 where randasc <= 5 or randdesc <=5
 
+
 --07
-/*We are interested in knowing better how main categories and products performing.
-Please provide the orders, quantity, gross revenue, discount and net revenue for
-the top 10 percent orders of each category name and product name in 1997.*/
-
-select top 10 percent CategoryName,ProductName, count(o.OrderID) as orders, sum(Quantity) as quantity, 
-sum(od.UnitPrice * Quantity) as Gross_Revenue, 
-sum(od.UnitPrice * Discount * Quantity) as Total_discount, 
-(sum(od.UnitPrice *Quantity) - sum(od.UnitPrice * Discount * Quantity) ) as Net_revenue
-from Products p 
-join [Order Details] od on p.ProductID=od.ProductID
-join Categories c on p.CategoryID=c.CategoryID
-join Orders o on od.OrderID=o.OrderID
-where year(OrderDate) = 1997
-group by CategoryName,ProductName
-order by CategoryName,ProductName asc
-
-select
-    c.categoryname,
-    p.productname,
-    count(distinct od.orderid) as orders,
-    sum(od.quantity) as quantity,
-    sum(od.unitprice * od.quantity) as gross_revenue,
-    sum(od.unitprice * od.discount * od.quantity) as total_discount,
-    sum(od.unitprice * od.quantity) - sum(od.unitprice * od.discount * od.quantity) as net_revenue
-from products p
-join categories c on p.categoryid = c.categoryid
-join [Order Details] od on p.productid = od.productid
-join orders o on od.orderid = o.orderid
-where year(o.orderdate) = 1997
-and od.orderid in (
-    select top 10 percent od2.orderid
-    from [Order Details] od2
-    join products p2 on od2.productid = p2.productid
-    join categories c2 on p2.categoryid = c2.categoryid
-    join orders o2 on od2.orderid = o2.orderid
-    where year(o2.orderdate) = 1997
-      and c2.categoryid = c.categoryid
-      and p2.productid = p.productid
-    group by od2.orderid
-    order by sum(od2.unitprice * od2.quantity) desc
-)
-group by c.categoryname, p.productname
-order by c.categoryname, net_revenue desc;
-
---09
 /*We would like to know the performance of our employees. Please provide a list of
 employees names with top 5 orders and bottom 5 orders in 1997. Add new column
 and name it performance for the top 5 and bottom 5 for each employee.*/
@@ -164,7 +120,7 @@ from (
 	order by orders asc
 	) a
 
---10
+--08
 /*We need more data also about the titles of the employees. Please pull the orders,
 quantity, gross revenue, discount and net revenue per each employee in 1997.*/
 
@@ -187,7 +143,7 @@ where o.OrderDate between '1997-01-01' and '1997-12-31'
 group by Title, FirstName
 ) a
 
---11
+--09
 /*We would like to know per each of region description the orders and revenue made,
 and the revenue per order. Please order it by revenue per order descending.*/
 
@@ -213,7 +169,7 @@ on a.EmployeeID= b.EmployeeID
 group by RegionDescription
 
 
---12
+--10
 /*We need a dashboard to monitor our main KPIs through time. Please prepper the data
 we need (create all KPIs with one query): OrderDate, Month, Quarter, CustomerID,
 Country, City, ShipperID, ShippingCompany, EmployeeID, Title, FirstName, ProductName,
@@ -239,3 +195,4 @@ join Employees e on o.EmployeeID = e.EmployeeID
 group by o.OrderDate, c.CustomerID,c.Country,c.City,s.ShipperID,s.CompanyName,e.EmployeeID,e.Title,
  e.FirstName,p.ProductName,cat.CategoryName,datediff(day, o.OrderDate, o.ShippedDate)
 order by o.OrderDate;
+
